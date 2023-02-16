@@ -28,4 +28,23 @@ class SearchController extends Controller
             'notify'    => $notify
         ],200);
     }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Search $search): Response
+    {
+        $message    = ['message' => [__('Done.')]];
+        $status     = 'success';
+        $notify     = false;
+
+        $data = $search;
+
+        return response([
+            'data'      => $data,
+            'status'    => $status,
+            'message'   => $message,
+            'notify'    => $notify
+        ],200);
+    }
 }

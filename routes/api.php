@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DictionaryController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,4 +29,7 @@ Route::group(['middleware' => ['auth:sanctum']], function (){
     Route::get("similarity", [DictionaryController::class, 'index'], ['parameters' => [
         'similarity' => 'dictionary',
     ]]);
+
+    Route::get("search", [SearchController::class, 'index']);
+    Route::get("search/{search}", [SearchController::class, 'show']);
 });
