@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('departamento');
             $table->string('localidad');
             $table->string('municipio');
-            $table->string('nombre');
+            $table->string('nombre')->index();
             $table->tinyInteger('años_activo');
             $table->string('tipo_persona');
             $table->string('tipo cargo');

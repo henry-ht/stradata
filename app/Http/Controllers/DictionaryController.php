@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Helpers\Similarity;
 use App\Http\Requests\GetSimilarityRequest;
 use App\Models\Dictionary;
-use App\Http\Requests\StoreDictionaryRequest;
-use App\Http\Requests\UpdateDictionaryRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Search;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class DictionaryController extends Controller
 {
@@ -20,47 +19,69 @@ class DictionaryController extends Controller
         $message    = ['message' => [__('Done.')]];
         $status     = 'success';
         $notify     = false;
+        $similar_text = null;
+        $resultsFinal = [];
+        $estados        = ['registros encontrados', 'sin coincidencias', 'error del sistema'];
+        $numeroEstado   = 0;
 
         $credentials = $request->only([
             'nombre',
             'porcentaje',
         ]);
 
-        $words = preg_split('/\s+/', $credentials['nombre'], -1, PREG_SPLIT_NO_EMPTY);
-        Dictionary::setComparisonName($credentials['nombre']);
-        $query = Dictionary::query();
+        try {
+            $words = preg_split('/\s+/', $credentials['nombre'], -1, PREG_SPLIT_NO_EMPTY);
+            Dictionary::setComparisonName($credentials['nombre']);
+            $dictionaries = Dictionary::all();
+            $query = Dictionary::query();
 
-        // $results = Dictionary::where(function ($query) use ($words, $credentials) {
-        //     foreach ($words as $word) {
-        //         $query->orWhere('nombre', 'like', '%' . $word . '%');
-        //     }
-        // })->get()->sortByDesc(function ($dictionary){
-        //     return $dictionary->similarity;
-        // });
+            $results = Dictionary::where(function ($query) use ($words, $credentials) {
+                foreach ($words as $word) {
+                    $query->orWhere('nombre', 'like', '%' . $word . '%');
+                }
+            })->get()->sortByDesc(function ($dictionary){
+                return $dictionary->similarity;
+            });
 
-        // $results = Dictionary::where(function ($query) use ($words, $credentials) {
-        //     foreach ($words as $word) {
-        //         $query->whereRaw('levenshtein('.$word.', `nombre`) BETWEEN 0 AND 1');
-        //     }
-        // })->get()->sortByDesc(function ($dictionary){
-        //     return $dictionary->similarity;
-        // });
+            if(empty($credentials['porcentaje'])){
+                $resultsFinal = $results;
+            }else{
+                foreach ($results as $key => $dictionary) {
+                    if($dictionary->similarity >= $credentials['porcentaje']){
+                        $resultsFinal[] = $dictionary;
+                    }
+                }
+            }
 
-        $data= similar_text("juan perez", "juan peres", $perc);
+            foreach ($dictionaries as $key => $dictionary) {
+                $perc = Similarity::get($dictionary->nombre, $credentials['nombre']);
+                if ($perc > 65) {
+                    $similar_text = $dictionary->nombre;
+                    break;
+                }
+            }
 
-        $data = $perc;
+            $data = [
+                'similar_text'  => $similar_text,
+                'results'       => $resultsFinal,
+            ];
 
+            if(count($resultsFinal) == 0){
+                $numeroEstado = 1;
+            }
 
+        } catch (\Throwable $th) {
+            $data = null;
+            $numeroEstado = 2;
+        }
 
-        // $data = array_filter($results, function ($var) use($credentials) {
-        //     return ($var['similarity'] >= $credentials['porcentaje']);
-        // });
-
-        // $data = $credentials['nombre'];
-
-        // $credentials;
-
-        // $data = Similarity::percentage("Juan Pablo Suarez Medina", "Juan macias");
+        Search::create([
+            'busqueda'      => $credentials['nombre'],
+            'porcentaje'    => $credentials['porcentaje'],
+            'estado'        => $estados[$numeroEstado],
+            'coincidencias' => json_encode($resultsFinal),
+            'user_id'       => Auth::user()->id
+        ]);
 
         return response([
             'data'      => $data,
@@ -71,49 +92,9 @@ class DictionaryController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreDictionaryRequest $request): RedirectResponse
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(Dictionary $dictionary): Response
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Dictionary $dictionary): Response
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateDictionaryRequest $request, Dictionary $dictionary): RedirectResponse
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Dictionary $dictionary): RedirectResponse
     {
         //
     }

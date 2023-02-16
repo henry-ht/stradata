@@ -15,7 +15,7 @@ class Dictionary extends Model
 
     public static function setComparisonName(String $name)
     {
-        static::$comparisonName = ucwords($name);
+        static::$comparisonName = $name;
     }
 
     public function getSimilarityAttribute(){
