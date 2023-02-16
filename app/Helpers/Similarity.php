@@ -1,13 +1,13 @@
 <?php
 namespace App\Helpers;
 
+use Ramsey\Uuid\Type\Integer;
+
 class Similarity {
-    public String $str1;
-    public String $str2;
 
-    public function __construct($str1, $str2){}
+    public function __construct(){}
 
-    private static function similarity($str1, $str2):String {
+    private static function similarity(String $str1, String $str2):String {
         $len1 = strlen($str1);
         $len2 = strlen($str2);
 
@@ -34,7 +34,7 @@ class Similarity {
         return round($similarity / $max, 2);
     }
 
-    public static function get($str1, $str2):String {
+    public static function get($str1, $str2):int {
         return (self::similarity($str1, $str2)* 100);
     }
 

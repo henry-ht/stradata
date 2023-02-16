@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('dictionaries', function (Blueprint $table) {
             $table->id();
+            $table->string('departamento');
+            $table->string('localidad');
+            $table->string('municipio');
+            $table->string('nombre');
+            $table->tinyInteger('años_activo');
+            $table->string('tipo_persona');
+            $table->string('tipo cargo');
             $table->timestamps();
         });
     }

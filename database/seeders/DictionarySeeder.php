@@ -16,12 +16,11 @@ class DictionarySeeder extends Seeder
     {
         $data = json_decode(Storage::disk('local')->get('names.json'));
 
+
         foreach ($data as $key => $value) {
             Dictionary::updateOrCreate([
-                'abbr'      => $value->alpha2,
-            ], [
-                'name'      => $value->english,
-            ]);
+                'nombre'      => $value->nombre,
+            ], (array) $value);
 
         }
     }
