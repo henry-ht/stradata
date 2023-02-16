@@ -90,12 +90,4 @@ class DictionaryController extends Controller
             'notify'    => $notify
         ],200);
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Dictionary $dictionary): Response
-    {
-        //
-    }
 }
