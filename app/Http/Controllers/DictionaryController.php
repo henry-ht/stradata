@@ -19,7 +19,7 @@ class DictionaryController extends Controller
         $message    = ['message' => [__('Done.')]];
         $status     = 'success';
         $notify     = false;
-        $similar_text = null;
+        $similar_text = "";
         $resultsFinal = [];
         $estados        = ['registros encontrados', 'sin coincidencias', 'error del sistema'];
         $numeroEstado   = 0;
